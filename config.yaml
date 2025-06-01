@@ -1,0 +1,26 @@
+swagger_file: "https://newapi.clinx.work/swag/swagger.json"
+
+server:
+  mode: "http"  # stdio, http, sse
+  host: "localhost"
+  port: 8080
+
+#upstream:
+#  base_url: "https://api.example.com"
+#  timeout: 30
+
+auth:
+  type: "none"  # none, bearer, basic, apikey, oauth2
+  token: ""
+  username: ""
+  password: ""
+  api_key: ""
+
+logging:
+  level: "info"  # debug, info, warn, error
+  disable_console: false
+  file: ""
+
+endpoint_config:
+  default_timeout: 30
+  endpoints: {} 

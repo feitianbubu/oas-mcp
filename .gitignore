@@ -7,6 +7,9 @@
 *.dll
 *.so
 *.dylib
+oas-mcp
+oas-mcp-new
+oas-mcp~
 
 # Test binary, built with `go test -c`
 *.test
@@ -19,7 +22,29 @@
 
 # Go workspace file
 go.work
-go.work.sum
 
-# env file
-.env
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log files
+*.log
+
+# Local configuration files
+config.local.yaml
+*.local.yaml
+
+# Test files
+test.sh
