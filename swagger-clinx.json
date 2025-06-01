@@ -1,0 +1,762 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "# 功能特点\n* 支持多种大模型接入和管理\n* 统一的API调用接口\n* 完整的用户权限管理\n* 支持按用户计费和充值\n\n# 使用说明\n1. 访问: https://dev.clinx.work\n1. 注册用户,生成ApiKey令牌,新用户有免费试用额度\n2. 根据模型列表获取可用的模型列表\n3. 根据模型调用大模型接口\n\n\u003e 注意：遇到问题可直接在此页面调用接口,确认是接口问题还是调用问题",
+        "title": "Clinx-云一大模型管理接口文档",
+        "contact": {},
+        "version": "v0.7.1.1-cb50f8aa-202506011126"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/checkToken": {
+            "get": {
+                "description": "检查认证",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "检查认证",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "Access-Token: sk-4No9laxl9cLoEDsPbF2vKpQ7MOVp4FHgXE3Br4zpoNq98Ldm",
+                        "description": "用户认证令牌 (Aeess-Token: sk-xxxx)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "用户信息",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/mj/image/{id}": {
+            "get": {
+                "description": "获取 Midjourney 图像",
+                "tags": [
+                    "Clinx"
+                ],
+                "summary": "图像获取_MJ",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "1746607709831346",
+                        "description": "图像 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/mj/submit/imagine": {
+            "post": {
+                "description": "接收符合 Midjourney API 格式的图像生成请求",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Clinx"
+                ],
+                "summary": "图像生成_MJ",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "Bearer sk-4No9laxl9cLoEDsPbF2vKpQ7MOVp4FHgXE3Br4zpoNq98Ldm",
+                        "description": "用户认证令牌 (Bearer sk-xxxx)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Midjourney 请求体",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ExampleMidjourneyRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/oauth/nd99u": {
+            "get": {
+                "description": "通过 99u 进行用户登录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "99U登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "QXV0aG9yaXphdGlvbjogTUFDIGlkPSI3RjkzOEIyMDVGODc2RkMzNTVGNEY2MTIwN0ZFOTQzRENEMDQ4RURDQjAzRERGNDAwODJDNzY1RTY1RTRBMDhENzMzQTVDQjMzM0NCODc2NUNFOTMzNzVENTcxOEE1OTMiLG5vbmNlPSIxNzQ3MTg4OTAzNTYzOkdTTkxSSE5PIixtYWM9IjdtUXZkQTZ6TlRpNVBCU0RGWE5IcnhVYWJvZnFsaURCeWE5ZGZpcmpyRnM9IixyZXF1ZXN0X3VyaT0iLyIsaG9zdD0idWMtY29tcG9uZW50LmJldGEuMTAxLmNvbSI=",
+                        "description": "99u的uckey",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "description": "通过用户名和密码进行用户登录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "普通登录",
+                "parameters": [
+                    {
+                        "description": "登录请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/user/pay": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "支付前获取服务端订单参数",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "充值"
+                ],
+                "summary": "创建订单",
+                "parameters": [
+                    {
+                        "description": "充值请求体",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.EpayRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回支付参数或支付链接，失败时返回错误信息",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/chat/completions": {
+            "post": {
+                "description": "接收符合 OpenAI API 格式的文本或聊天补全请求",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "Clinx"
+                ],
+                "summary": "模型对话",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "Bearer sk-t8uP8tR6EhrmVgTijsf5HzMrr5KGE0BYCFTtSh4sk2GCXNZN",
+                        "description": "用户认证令牌 (Bearer sk-xxxx)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "OpenAI 请求体",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ExampleGeneralOpenAIRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "流式响应 (text/event-stream)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的请求",
+                        "schema": {
+                            "$ref": "#/definitions/dto.OpenAIErrorWithStatusCode"
+                        }
+                    },
+                    "401": {
+                        "description": "无效的认证",
+                        "schema": {
+                            "$ref": "#/definitions/dto.OpenAIErrorWithStatusCode"
+                        }
+                    },
+                    "403": {
+                        "description": "用户或令牌额度不足",
+                        "schema": {
+                            "$ref": "#/definitions/dto.OpenAIErrorWithStatusCode"
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/dto.OpenAIErrorWithStatusCode"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/chat/completions": {
+            "post": {
+                "description": "接收符合 OpenAI API 格式的图片分析请求",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json",
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "Clinx"
+                ],
+                "summary": "图像分析",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "Bearer sk-t8uP8tR6EhrmVgTijsf5HzMrr5KGE0BYCFTtSh4sk2GCXNZN",
+                        "description": "用户认证令牌 (Bearer sk-xxxx)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "OpenAI 请求体",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ExampleImageAnalysisRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.OpenAITextResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/images/generations": {
+            "post": {
+                "description": "接收符合 OpenAI API 格式的图像生成请求",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Clinx"
+                ],
+                "summary": "图像生成",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "Bearer sk-4No9laxl9cLoEDsPbF2vKpQ7MOVp4FHgXE3Br4zpoNq98Ldm",
+                        "description": "用户认证令牌 (Bearer sk-xxxx)",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "OpenAI 请求体",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ExampleImageRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/providers/modelsList": {
+            "get": {
+                "description": "获取模型列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Clinx"
+                ],
+                "summary": "模型列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "llm",
+                        "description": "模型标签: llm/embedding/image/video",
+                        "name": "tag",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "controller.EpayRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "top_up_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "12345678"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "test1"
+                }
+            }
+        },
+        "dto.ExampleGeneralOpenAIRequest": {
+            "type": "object",
+            "properties": {
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "content": {
+                                "type": "string",
+                                "example": "你是?"
+                            },
+                            "role": {
+                                "type": "string",
+                                "example": "user"
+                            }
+                        }
+                    }
+                },
+                "model": {
+                    "type": "string",
+                    "example": "gpt-4.1"
+                }
+            }
+        },
+        "dto.ExampleImageAnalysisRequest": {
+            "type": "object",
+            "properties": {
+                "messages": {
+                    "type": "array",
+                    "example": [{
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "这张图片里有什么？"
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+                                }
+                            }
+                        ]
+                    }]
+                },
+                "model": {
+                    "type": "string",
+                    "example": "gpt-4.1"
+                },
+                "max_tokens": {
+                    "type": "integer",
+                    "example": 300
+                }
+            }
+        },
+        "dto.ExampleImageRequest": {
+            "type": "object",
+            "properties": {
+                "model": {
+                    "type": "string",
+                    "example": "dall-e-2"
+                },
+                "n": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "prompt": {
+                    "type": "string",
+                    "example": "可爱的中国小女孩"
+                },
+                "seed": {
+                    "type": "integer",
+                    "example": -1
+                },
+                "size": {
+                    "type": "string",
+                    "example": "256x256"
+                }
+            }
+        },
+        "dto.ExampleMidjourneyRequest": {
+            "type": "object",
+            "properties": {
+                "botType": {
+                    "type": "string",
+                    "example": "MID_JOURNEY"
+                },
+                "prompt": {
+                    "type": "string",
+                    "example": "Dog"
+                }
+            }
+        },
+        "dto.InputTokenDetails": {
+            "type": "object",
+            "properties": {
+                "audio_tokens": {
+                    "type": "integer"
+                },
+                "cached_tokens": {
+                    "type": "integer"
+                },
+                "image_tokens": {
+                    "type": "integer"
+                },
+                "text_tokens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.Message": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "prefix": {
+                    "type": "boolean"
+                },
+                "reasoning": {
+                    "type": "string"
+                },
+                "reasoning_content": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "tool_call_id": {
+                    "type": "string"
+                },
+                "tool_calls": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "dto.OpenAIError": {
+            "type": "object",
+            "properties": {
+                "code": {},
+                "message": {
+                    "type": "string"
+                },
+                "param": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.OpenAIErrorWithStatusCode": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/dto.OpenAIError"
+                },
+                "localError": {
+                    "type": "boolean"
+                },
+                "status_code": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.OpenAITextResponse": {
+            "type": "object",
+            "properties": {
+                "choices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.OpenAITextResponseChoice"
+                    }
+                },
+                "created": {
+                    "type": "integer"
+                },
+                "error": {
+                    "$ref": "#/definitions/dto.OpenAIError"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "object": {
+                    "type": "string"
+                },
+                "usage": {
+                    "$ref": "#/definitions/dto.Usage"
+                }
+            }
+        },
+        "dto.OpenAITextResponseChoice": {
+            "type": "object",
+            "properties": {
+                "finish_reason": {
+                    "type": "string"
+                },
+                "index": {
+                    "type": "integer"
+                },
+                "message": {
+                    "$ref": "#/definitions/dto.Message"
+                }
+            }
+        },
+        "dto.OutputTokenDetails": {
+            "type": "object",
+            "properties": {
+                "audio_tokens": {
+                    "type": "integer"
+                },
+                "reasoning_tokens": {
+                    "type": "integer"
+                },
+                "text_tokens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.Usage": {
+            "type": "object",
+            "properties": {
+                "completion_tokens": {
+                    "type": "integer"
+                },
+                "completion_tokens_details": {
+                    "$ref": "#/definitions/dto.OutputTokenDetails"
+                },
+                "input_tokens": {
+                    "type": "integer"
+                },
+                "input_tokens_details": {
+                    "$ref": "#/definitions/dto.InputTokenDetails"
+                },
+                "output_tokens": {
+                    "type": "integer"
+                },
+                "prompt_cache_hit_tokens": {
+                    "type": "integer"
+                },
+                "prompt_tokens": {
+                    "type": "integer"
+                },
+                "prompt_tokens_details": {
+                    "$ref": "#/definitions/dto.InputTokenDetails"
+                },
+                "total_tokens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "this token is for system management",
+                    "type": "string"
+                },
+                "aff_code": {
+                    "type": "string"
+                },
+                "aff_count": {
+                    "type": "integer"
+                },
+                "aff_history_quota": {
+                    "description": "邀请历史额度",
+                    "type": "integer"
+                },
+                "aff_quota": {
+                    "description": "邀请剩余额度",
+                    "type": "integer"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "display_name": {
+                    "type": "string",
+                    "maxLength": 20
+                },
+                "email": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "github_id": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inviter_id": {
+                    "type": "integer"
+                },
+                "linux_do_id": {
+                    "type": "string"
+                },
+                "oidc_id": {
+                    "type": "string"
+                },
+                "original_password": {
+                    "description": "this field is only for Password change verification, don't save it to database!",
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                },
+                "quota": {
+                    "type": "integer"
+                },
+                "request_count": {
+                    "description": "request number",
+                    "type": "integer"
+                },
+                "role": {
+                    "description": "admin, common",
+                    "type": "integer"
+                },
+                "setting": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "enabled, disabled",
+                    "type": "integer"
+                },
+                "telegram_id": {
+                    "type": "string"
+                },
+                "used_quota": {
+                    "description": "used quota",
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 12
+                },
+                "verification_code": {
+                    "description": "this field is only for Email verification, don't save it to database!",
+                    "type": "string"
+                },
+                "wechat_id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

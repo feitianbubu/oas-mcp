@@ -1,0 +1,20 @@
+swagger_file: "swagger-clinx.json"
+adjustment_file: ""
+
+server:
+  mode: "http"  # 使用HTTP模式便于测试
+  host: "localhost"
+  port: 8085
+
+upstream:
+  base_url: "https://newapi.clinx.work"
+  timeout: 30
+
+auth:
+  type: "bearer"  # 使用Bearer token认证
+  token: ""  # 需要设置您的API token
+
+logging:
+  level: "info"
+  disable_console: false
+  file: "" 
