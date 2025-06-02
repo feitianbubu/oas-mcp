@@ -58,17 +58,15 @@ graph TB
 ### 构建项目
 
 ```bash
-go build -o oas-mcp ./cmd/oas-mcp
+go build -o oas-mcp ./main.go
 ```
 
 ### 运行
 
 1. **STDIO 模式（默认）**:
    ```bash
-   # 使用本地文件
    ./oas-mcp --swagger-file=swagger.json
-   
-   # 使用远程URL
+   # 或
    ./oas-mcp --swagger-file=https://petstore.swagger.io/v2/swagger.json
    ```
 
@@ -238,15 +236,15 @@ auth:
 ### 项目结构
 
 ```
-├── cmd/oas-mcp/          # 主程序入口
-├── internal/
-│   ├── config/           # 配置管理
-│   ├── logger/           # 日志管理
-│   ├── parser/           # OpenAPI 解析器
-│   ├── requester/        # HTTP 请求处理
-│   └── server/           # MCP 服务器实现
-├── config.yaml           # 示例配置文件
-├── swagger.json          # 示例 OpenAPI 规范
+├── main.go              # 主程序入口
+├── internal/            # 内部模块
+│   ├── config/          # 配置管理
+│   ├── logger/          # 日志管理
+│   ├── parser/          # OpenAPI 解析器
+│   ├── requester/       # HTTP 请求处理
+│   └── server/          # MCP 服务器实现
+├── config.yaml          # 示例配置文件
+├── swagger.json         # 示例 OpenAPI 规范
 └── README.md
 ```
 
@@ -259,7 +257,7 @@ go mod tidy
 ### 构建
 
 ```bash
-go build -o oas-mcp ./cmd/oas-mcp
+go build -o oas-mcp ./main.go
 ```
 
 ## 许可证
