@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"go.uber.org/fx"
 	"gopkg.in/yaml.v3"
@@ -182,20 +184,56 @@ type Tag struct {
 	Description string `json:"description,omitempty" yaml:"description,omitempty"`
 }
 
-// ParseFile parses an OpenAPI/Swagger file from disk
-func (p *Parser) ParseFile(filename string) (*OpenAPISpec, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open file: %w", err)
-	}
-	defer file.Close()
+// ParseFile parses an OpenAPI/Swagger file from disk or URL
+func (p *Parser) ParseFile(source string) (*OpenAPISpec, error) {
+	var data []byte
+	var err error
 
-	data, err := io.ReadAll(file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file: %w", err)
+	// Check if source is a URL
+	if strings.HasPrefix(source, "http://") || strings.HasPrefix(source, "https://") {
+		data, err = p.fetchFromURL(source)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch from URL: %w", err)
+		}
+	} else {
+		// Handle as local file
+		file, err := os.Open(source)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open file: %w", err)
+		}
+		defer file.Close()
+
+		data, err = io.ReadAll(file)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read file: %w", err)
+		}
 	}
 
-	return p.Parse(data, filename)
+	return p.Parse(data, source)
+}
+
+// fetchFromURL downloads content from a URL
+func (p *Parser) fetchFromURL(url string) ([]byte, error) {
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to GET %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, resp.Status)
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	return data, nil
 }
 
 // Parse parses OpenAPI/Swagger data from bytes

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime/debug"
+	"strings"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -142,8 +143,11 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("swagger_file is required")
 	}
 
-	if _, err := os.Stat(c.SwaggerFile); os.IsNotExist(err) {
-		return fmt.Errorf("swagger file does not exist: %s", c.SwaggerFile)
+	// Check if swagger file exists (skip check for URLs)
+	if !strings.HasPrefix(c.SwaggerFile, "http://") && !strings.HasPrefix(c.SwaggerFile, "https://") {
+		if _, err := os.Stat(c.SwaggerFile); os.IsNotExist(err) {
+			return fmt.Errorf("swagger file does not exist: %s", c.SwaggerFile)
+		}
 	}
 
 	// Validate server mode
