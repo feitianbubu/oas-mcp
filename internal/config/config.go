@@ -2,7 +2,9 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"os"
+	"path"
 	"runtime/debug"
 	"strings"
 
@@ -126,6 +128,19 @@ func Load() (*Config, error) {
 	// Unmarshal configuration
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
+	}
+
+	if cfg.Upstream.BaseURL == "" && (strings.HasPrefix(cfg.SwaggerFile, "http://") || strings.HasPrefix(cfg.SwaggerFile, "https://")) {
+		u, err := url.Parse(cfg.SwaggerFile)
+		if err == nil {
+			// 获取目录部分
+			dir := path.Dir(u.Path)
+			if dir == "." || dir == "/" {
+				cfg.Upstream.BaseURL = u.Scheme + "://" + u.Host
+			} else {
+				cfg.Upstream.BaseURL = u.Scheme + "://" + u.Host + dir
+			}
+		}
 	}
 
 	// Validate configuration
