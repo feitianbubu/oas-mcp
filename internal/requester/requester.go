@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/oas-mcp/oas-mcp/internal/config"
-	"github.com/oas-mcp/oas-mcp/internal/logger"
+	"github.com/feitianbubu/oas-mcp/internal/config"
+	"github.com/feitianbubu/oas-mcp/internal/logger"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )

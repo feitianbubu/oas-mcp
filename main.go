@@ -7,12 +7,12 @@ import (
 	"os"
 	"runtime/debug"
 
-	"github.com/oas-mcp/oas-mcp/internal/config"
-	"github.com/oas-mcp/oas-mcp/internal/parser"
-	"github.com/oas-mcp/oas-mcp/internal/requester"
-	"github.com/oas-mcp/oas-mcp/internal/server"
+	"github.com/feitianbubu/oas-mcp/internal/config"
+	"github.com/feitianbubu/oas-mcp/internal/parser"
+	"github.com/feitianbubu/oas-mcp/internal/requester"
+	"github.com/feitianbubu/oas-mcp/internal/server"
 
-	"github.com/oas-mcp/oas-mcp/internal/logger"
+	"github.com/feitianbubu/oas-mcp/internal/logger"
 	"github.com/spf13/pflag"
 	"go.uber.org/fx"
 	"go.uber.org/zap"

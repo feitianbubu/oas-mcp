@@ -9,10 +9,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/oas-mcp/oas-mcp/internal/config"
-	"github.com/oas-mcp/oas-mcp/internal/logger"
-	"github.com/oas-mcp/oas-mcp/internal/parser"
-	"github.com/oas-mcp/oas-mcp/internal/requester"
+	"github.com/feitianbubu/oas-mcp/internal/config"
+	"github.com/feitianbubu/oas-mcp/internal/logger"
+	"github.com/feitianbubu/oas-mcp/internal/parser"
+	"github.com/feitianbubu/oas-mcp/internal/requester"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
