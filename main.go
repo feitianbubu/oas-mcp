@@ -89,5 +89,10 @@ func main() {
 	)
 
 	// Start the application
+	if err := app.Err(); err != nil {
+		logger.Error("Failed to initialize application", zap.Error(err))
+		os.Exit(1)
+	}
+
 	app.Run()
 }

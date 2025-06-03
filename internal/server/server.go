@@ -33,11 +33,20 @@ type Server struct {
 
 // NewServer creates a new server instance
 func NewServer(cfg *config.Config, p *parser.Parser, r *requester.Requester) (*Server, error) {
+	logger.Info("Parsing OpenAPI specification", zap.String("source", cfg.SwaggerFile))
+
 	// Parse the OpenAPI specification
 	spec, err := p.ParseFile(cfg.SwaggerFile)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse OpenAPI spec: %w", err)
+		logger.Error("Failed to parse OpenAPI specification",
+			zap.String("source", cfg.SwaggerFile),
+			zap.Error(err))
+		return nil, fmt.Errorf("failed to parse OpenAPI spec from %s: %w", cfg.SwaggerFile, err)
 	}
+
+	logger.Info("Successfully parsed OpenAPI specification",
+		zap.String("title", spec.Info.Title),
+		zap.String("version", spec.Info.Version))
 
 	server := &Server{
 		config:    cfg,
@@ -154,7 +163,22 @@ func (s *Server) startHTTPServer(ctx context.Context) error {
 	logger.Info("Starting HTTP MCP server", zap.String("address", addr))
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", s.handleHTTPRequest)
+
+	// Setup static file server for public directory
+	publicDir := "public"
+	if _, err := os.Stat(publicDir); err == nil {
+		fileServer := http.FileServer(http.Dir(publicDir))
+		mux.Handle("/", fileServer)
+		logger.Info("Static file server enabled", zap.String("directory", publicDir))
+	} else {
+		logger.Warn("Public directory not found, static file serving disabled", zap.String("directory", publicDir))
+	}
+
+	// Handle MCP requests on /mcp endpoint
+	mux.HandleFunc("/mcp", s.handleHTTPRequest)
+
+	// Handle config API requests
+	mux.HandleFunc("/api/config", s.handleConfigRequest)
 
 	server := &http.Server{
 		Addr:    addr,
@@ -175,7 +199,21 @@ func (s *Server) startSSEServer(ctx context.Context) error {
 	logger.Info("Starting SSE MCP server", zap.String("address", addr))
 
 	mux := http.NewServeMux()
+
+	// Setup static file server for public directory
+	publicDir := "public"
+	if _, err := os.Stat(publicDir); err == nil {
+		fileServer := http.FileServer(http.Dir(publicDir))
+		mux.Handle("/", fileServer)
+		logger.Info("Static file server enabled", zap.String("directory", publicDir))
+	} else {
+		logger.Warn("Public directory not found, static file serving disabled", zap.String("directory", publicDir))
+	}
+
 	mux.HandleFunc("/sse", s.handleSSERequest)
+
+	// Handle config API requests
+	mux.HandleFunc("/api/config", s.handleConfigRequest)
 
 	server := &http.Server{
 		Addr:    addr,
@@ -496,4 +534,12 @@ func (s *Server) generateInputSchema(op parser.OperationInfo) Schema {
 	}
 
 	return schema
+}
+
+// handleConfigRequest handles config API requests
+func (s *Server) handleConfigRequest(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"swagger_file": s.config.SwaggerFile,
+	})
 }

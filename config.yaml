@@ -17,7 +17,7 @@ auth:
   api_key: ""
 
 logging:
-  level: "info"  # debug, info, warn, error
+  level: "debug"
   disable_console: false
   file: ""
 

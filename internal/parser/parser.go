@@ -225,12 +225,41 @@ func (p *Parser) fetchFromURL(url string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, resp.Status)
+		// Read the response body for error details
+		body, _ := io.ReadAll(resp.Body)
+		bodyPreview := string(body)
+		if len(bodyPreview) > 200 {
+			bodyPreview = bodyPreview[:200] + "..."
+		}
+		return nil, fmt.Errorf("HTTP %d %s for %s - Response: %s",
+			resp.StatusCode, resp.Status, url, bodyPreview)
+	}
+
+	// Check content type
+	contentType := resp.Header.Get("Content-Type")
+	if contentType != "" && !strings.Contains(contentType, "application/json") &&
+		!strings.Contains(contentType, "application/yaml") &&
+		!strings.Contains(contentType, "text/yaml") &&
+		!strings.Contains(contentType, "application/x-yaml") {
+		// Still allow text/plain and others as they might be valid OpenAPI files
+		if strings.Contains(contentType, "text/html") {
+			return nil, fmt.Errorf("received HTML content instead of OpenAPI specification from %s (Content-Type: %s)", url, contentType)
+		}
 	}
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
+		return nil, fmt.Errorf("failed to read response body from %s: %w", url, err)
+	}
+
+	// Check if the content looks like HTML
+	dataStr := strings.TrimSpace(string(data))
+	if strings.HasPrefix(dataStr, "<!") || strings.HasPrefix(dataStr, "<html") {
+		preview := dataStr
+		if len(preview) > 100 {
+			preview = preview[:100] + "..."
+		}
+		return nil, fmt.Errorf("received HTML content instead of OpenAPI specification from %s: %s", url, preview)
 	}
 
 	return data, nil

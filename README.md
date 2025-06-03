@@ -1,6 +1,16 @@
 # OAS-MCP
 
-将任何 OpenAPI/Swagger 定义转换为功能完整的 Model Context Protocol (MCP) 服务器。
+一个将OpenAPI规范转换为MCP（Model Context Protocol）工具的服务器，支持HTTP、SSE和STDIO模式。
+
+## 静态文件服务
+
+当使用HTTP或SSE模式启动服务器时，`public`目录将自动作为静态资源目录提供服务：
+
+- **HTTP模式**: 静态文件通过根路径 `/` 提供服务，MCP请求通过 `/mcp` 端点处理
+- **SSE模式**: 静态文件通过根路径 `/` 提供服务，SSE连接通过 `/sse` 端点处理
+- **访问示例**: 
+  - Swagger文档：`http://localhost:8080/swag.html`
+  - API参考：`http://localhost:8080/api-reference`
 
 ## 功能特性
 
@@ -77,6 +87,11 @@ go build -o oas-mcp ./main.go
    
    # 使用远程URL
    ./oas-mcp --swagger-file=https://petstore.swagger.io/v2/swagger.json --mode=http --port=8080
+   
+   # HTTP模式自动启用静态文件服务：
+   # - MCP API: http://localhost:8080/mcp
+   # - Swagger文档: http://localhost:8080/swag.html
+   # - 静态资源: http://localhost:8080/ (public目录)
    ```
 
 3. **使用配置文件**:
