@@ -1,6 +1,6 @@
 # OAS-MCP
-
-一个将OpenAPI规范转换为MCP（Model Context Protocol）工具的服务器，支持HTTP、SSE和STDIO模式。
+- 根据源码智能生成标准OpenAPI接口文档
+- 将OpenAPI接口文档转换为MCP工具的服务器
 
 ## 静态文件服务
 
@@ -9,8 +9,7 @@
 - **HTTP模式**: 静态文件通过根路径 `/` 提供服务，MCP请求通过 `/mcp` 端点处理
 - **SSE模式**: 静态文件通过根路径 `/` 提供服务，SSE连接通过 `/sse` 端点处理
 - **访问示例**: 
-  - Swagger文档：`http://localhost:8080/swag.html`
-  - API参考：`http://localhost:8080/api-reference`
+  - OpenAPI文档：`http://localhost:8080`
 
 ## 功能特性
 
